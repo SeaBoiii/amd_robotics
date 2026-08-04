@@ -1,0 +1,128 @@
+{
+  "id": "m3-teach-the-rover",
+  "index": 3,
+  "title": "Teach the Rover",
+  "subtitle": "Train your first AI model",
+  "description": "Train the camera model to tell roads, debris, flood water, supply crates and people apart, then drive to the command centre.",
+  "story": "The rover now has a camera, but a camera on its own understands nothing. Before it can help anyone, somebody has to teach it what it is looking at. That somebody is your team.",
+  "learningObjectives": [
+    "Training data is a set of examples with labels attached",
+    "A model learns patterns from features, not from magic",
+    "Confidence tells you how sure the model is, not how right it is",
+    "If one label has far fewer examples, the model will be bad at that label"
+  ],
+  "map": {
+    "width": 16,
+    "height": 12,
+    "tileSize": 44,
+    "rows": [
+      "################",
+      "#..............#",
+      "#.####.###.###.#",
+      "#....~~....!...#",
+      "#.###.####.###.#",
+      "#......S.......#",
+      "#.####.###.###.#",
+      "#..!......~~...#",
+      "#.###.####.###.#",
+      "#.....T........#",
+      "#.###.####.###B#",
+      "################"
+    ]
+  },
+  "start": { "x": 1, "y": 1, "heading": "south" },
+  "availableSensors": ["distance", "camera", "line", "light", "colour"],
+  "availableComponents": [
+    "sensor-distance-basic",
+    "sensor-distance-long",
+    "sensor-camera",
+    "sensor-line",
+    "sensor-light",
+    "sensor-colour",
+    "wheel-standard",
+    "wheel-allterrain",
+    "wheel-speed",
+    "motor-standard",
+    "motor-efficient",
+    "motor-power",
+    "battery-standard",
+    "battery-extended",
+    "comms-radio"
+  ],
+  "budget": 160,
+  "objectives": [
+    {
+      "id": "o1",
+      "type": "classify_correctly",
+      "description": "Get at least 70% of camera predictions right during the run",
+      "target": 70,
+      "required": true
+    },
+    {
+      "id": "o2",
+      "type": "reach_base",
+      "description": "Drive to the command centre in the south-east",
+      "target": 1,
+      "required": true
+    },
+    {
+      "id": "o3",
+      "type": "avoid_hazards",
+      "description": "Bonus: enter no more than one hazard tile",
+      "target": 1,
+      "required": false
+    }
+  ],
+  "failureConditions": [
+    { "type": "out_of_energy", "message": "The battery ran flat before reaching the command centre." },
+    { "type": "time_limit", "message": "Time ran out before the rover reached the command centre." },
+    {
+      "type": "too_many_collisions",
+      "limit": 8,
+      "message": "The rover crashed too many times and was recalled for repairs."
+    }
+  ],
+  "timeLimit": 170,
+  "scoring": {
+    "completion": 30,
+    "aiAccuracy": 20,
+    "reliability": 15,
+    "energy": 10,
+    "time": 10,
+    "safety": 10,
+    "responsibleAi": 5
+  },
+  "difficultyModifiers": {
+    "explorer": {
+      "sensorNoise": 0.5,
+      "aiUncertainty": 0,
+      "energyMultiplier": 0.75,
+      "timeMultiplier": 1.4
+    },
+    "engineer": {
+      "sensorNoise": 1,
+      "aiUncertainty": 0.2,
+      "energyMultiplier": 1,
+      "timeMultiplier": 1
+    },
+    "expert": {
+      "sensorNoise": 1.6,
+      "aiUncertainty": 0.45,
+      "energyMultiplier": 1.25,
+      "timeMultiplier": 0.85
+    }
+  },
+  "hints": [
+    "Open the AI Lab first. You cannot run this mission without a trained model and an AI Camera fitted.",
+    "Your starter dataset is deliberately unbalanced. Count the examples per label before you train.",
+    "Hazard Zone and Person or Target both contain warm colours, so the model mixes them up. Add more examples of both.",
+    "Short of time? Instant Training Mode gives you a working model straight away, but you will learn less."
+  ],
+  "reflectionQuestions": [
+    "Which two labels did your model confuse most often? Why do you think that happened?",
+    "What changed when you added more examples of the rarest label?",
+    "Is a model with 90% accuracy safe enough to drive a real rescue rover? Explain your answer."
+  ],
+  "requiresAI": true,
+  "seed": 330325
+}

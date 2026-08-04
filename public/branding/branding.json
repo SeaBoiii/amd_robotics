@@ -1,0 +1,12 @@
+{
+  "programmeTitle": "AMD AI Rover Challenge",
+  "eventTitle": "Sense · Think · Move",
+  "sponsorMessage": "A STEM outreach programme supported by AMD.",
+  "amdLogo": null,
+  "partnerLogos": [
+    { "name": "Programme Partner", "src": null },
+    { "name": "Host School", "src": null }
+  ],
+  "schoolLogo": null,
+  "certificateFooter": "Presented in recognition of outstanding work in robotics, AI and engineering problem-solving."
+}

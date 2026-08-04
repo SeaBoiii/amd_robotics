@@ -1,0 +1,132 @@
+{
+  "id": "m4-ai-in-control",
+  "index": 4,
+  "title": "AI in Control",
+  "subtitle": "Let predictions steer the rover",
+  "description": "Use AI predictions to find the supply stations in Sector 4 and deliver emergency packages.",
+  "story": "Two supply stations in Sector 4 have been cut off since the storm. The rover is carrying packages, but nobody can drive it manually — the link is too slow. From here on, the AI decides.",
+  "learningObjectives": [
+    "Predictions can be connected directly to robot actions",
+    "A confident wrong answer is more dangerous than an unsure one",
+    "Fallback logic protects a system when the model is uncertain",
+    "Autonomy means deciding when NOT to act"
+  ],
+  "map": {
+    "width": 16,
+    "height": 12,
+    "tileSize": 44,
+    "rows": [
+      "################",
+      "#B.............#",
+      "#....##....##..#",
+      "#....##....##..#",
+      "#.......~~.....#",
+      "#.##......##...#",
+      "#.##...S..##..S#",
+      "#..............#",
+      "#..###....###..#",
+      "#..###.!!.###..#",
+      "#..............#",
+      "################"
+    ]
+  },
+  "start": { "x": 1, "y": 1, "heading": "south" },
+  "availableSensors": ["distance", "camera", "line", "light", "colour", "sound"],
+  "availableComponents": [
+    "sensor-distance-basic",
+    "sensor-distance-long",
+    "sensor-camera",
+    "sensor-line",
+    "sensor-light",
+    "sensor-colour",
+    "sensor-sound",
+    "wheel-standard",
+    "wheel-allterrain",
+    "wheel-speed",
+    "motor-standard",
+    "motor-efficient",
+    "motor-power",
+    "battery-standard",
+    "battery-extended",
+    "battery-solar",
+    "storage-small",
+    "storage-large",
+    "comms-radio"
+  ],
+  "budget": 190,
+  "objectives": [
+    {
+      "id": "o1",
+      "type": "deliver_supplies",
+      "description": "Deliver packages to both supply stations",
+      "target": 2,
+      "required": true
+    },
+    {
+      "id": "o2",
+      "type": "avoid_hazards",
+      "description": "Enter no more than two hazard tiles",
+      "target": 2,
+      "required": true
+    },
+    {
+      "id": "o3",
+      "type": "classify_correctly",
+      "description": "Bonus: keep camera accuracy above 75%",
+      "target": 75,
+      "required": false
+    }
+  ],
+  "failureConditions": [
+    { "type": "out_of_energy", "message": "The rover ran out of battery before finishing its deliveries." },
+    { "type": "time_limit", "message": "Time ran out before both stations were supplied." },
+    {
+      "type": "too_many_collisions",
+      "limit": 10,
+      "message": "The rover was damaged beyond safe operation."
+    }
+  ],
+  "timeLimit": 200,
+  "scoring": {
+    "completion": 30,
+    "aiAccuracy": 20,
+    "reliability": 15,
+    "energy": 10,
+    "time": 10,
+    "safety": 10,
+    "responsibleAi": 5
+  },
+  "difficultyModifiers": {
+    "explorer": {
+      "sensorNoise": 0.5,
+      "aiUncertainty": 0.1,
+      "energyMultiplier": 0.75,
+      "timeMultiplier": 1.4
+    },
+    "engineer": {
+      "sensorNoise": 1,
+      "aiUncertainty": 0.25,
+      "energyMultiplier": 1,
+      "timeMultiplier": 1
+    },
+    "expert": {
+      "sensorNoise": 1.6,
+      "aiUncertainty": 0.5,
+      "energyMultiplier": 1.25,
+      "timeMultiplier": 0.85
+    }
+  },
+  "hints": [
+    "You need a storage compartment. Without one the rover has nothing to deliver.",
+    "The camera looks at the tile directly in front of the rover, so 'Deliver supply' fires when the rover is facing a station.",
+    "Fit the Radio Link so the 'Ask a human' action actually works. Without it the rover just stops.",
+    "Set your confidence threshold in the AI Lab. Acting on a 40% prediction is how autonomous systems cause accidents."
+  ],
+  "reflectionQuestions": [
+    "What confidence threshold did you choose, and what happened when you raised or lowered it?",
+    "When should a robot stop and ask a human instead of deciding by itself?",
+    "Did asking for help cost you points or save you points overall?"
+  ],
+  "requiresAI": true,
+  "seed": 440425
+}

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "missions": [
+    {
+      "id": "m1-first-movement",
+      "index": 1,
+      "title": "First Movement",
+      "subtitle": "Make the rover drive",
+      "requiresAI": false,
+      "file": "m1-first-movement.json"
+    },
+    {
+      "id": "m2-sense-and-avoid",
+      "index": 2,
+      "title": "Sense and Avoid",
+      "subtitle": "Use sensors to dodge debris",
+      "requiresAI": false,
+      "file": "m2-sense-and-avoid.json"
+    },
+    {
+      "id": "m3-teach-the-rover",
+      "index": 3,
+      "title": "Teach the Rover",
+      "subtitle": "Train your first AI model",
+      "requiresAI": true,
+      "file": "m3-teach-the-rover.json"
+    },
+    {
+      "id": "m4-ai-in-control",
+      "index": 4,
+      "title": "AI in Control",
+      "subtitle": "Let predictions steer the rover",
+      "requiresAI": true,
+      "file": "m4-ai-in-control.json"
+    },
+    {
+      "id": "m5-rescue-rover",
+      "index": 5,
+      "title": "Rescue Rover Challenge",
+      "subtitle": "Put the whole system together",
+      "requiresAI": true,
+      "file": "m5-rescue-rover.json"
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+/* =============================================================================
+   Design tokens — AMD AI Rover Challenge
+   A robotics control-centre look: deep navy panels, cyan instrumentation,
+   amber alerts. Original identity; not a copy of any corporate site.
+
+   Every colour here is also paired with an icon or shape somewhere in the UI,
+   so meaning is never carried by colour alone.
+   ========================================================================== */
+
+:root {
+  color-scheme: dark;
+
+  /* --- surfaces ------------------------------------------------------- */
+  --c-bg: #070b16;
+  --c-bg-deep: #04070f;
+  --c-surface: #101827;
+  --c-surface-2: #16203440;
+  --c-panel: #131d2f;
+  --c-panel-raised: #1b2740;
+  --c-border: #24334f;
+  --c-border-strong: #35496e;
+
+  /* --- text ----------------------------------------------------------- */
+  --c-text: #e8eef8;
+  --c-text-muted: #9fb0cc;
+  --c-text-dim: #6d80a0;
+
+  /* --- brand / instrumentation ---------------------------------------- */
+  --c-primary: #22d3ee;
+  --c-primary-strong: #06b6d4;
+  --c-primary-dim: #0e7490;
+  --c-accent: #f97316;
+  --c-accent-strong: #ea580c;
+
+  /* --- semantic ------------------------------------------------------- */
+  --c-success: #22c55e;
+  --c-warning: #f59e0b;
+  --c-danger: #ef4444;
+  --c-info: #38bdf8;
+  --c-purple: #a855f7;
+
+  /* --- label palette (mirrors src/ai/labels.ts) ----------------------- */
+  --c-label-clear: #38bdf8;
+  --c-label-obstacle: #f59e0b;
+  --c-label-person: #a855f7;
+  --c-label-hazard: #ef4444;
+  --c-label-supply: #22c55e;
+
+  /* --- typography ----------------------------------------------------- */
+  --font-sans: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'Cascadia Code', 'Consolas', 'SF Mono', 'Roboto Mono', monospace;
+  --text-scale: 1;
+
+  --fs-xs: calc(0.75rem * var(--text-scale));
+  --fs-sm: calc(0.875rem * var(--text-scale));
+  --fs-md: calc(1rem * var(--text-scale));
+  --fs-lg: calc(1.175rem * var(--text-scale));
+  --fs-xl: calc(1.5rem * var(--text-scale));
+  --fs-2xl: calc(2rem * var(--text-scale));
+  --fs-3xl: calc(2.75rem * var(--text-scale));
+
+  /* --- spacing / shape ------------------------------------------------ */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 40%);
+  --shadow: 0 8px 24px rgb(0 0 0 / 45%);
+  --shadow-glow: 0 0 0 1px rgb(34 211 238 / 25%), 0 0 24px rgb(34 211 238 / 15%);
+
+  --speed-fast: 120ms;
+  --speed: 220ms;
+  --speed-slow: 400ms;
+
+  --focus-ring: 0 0 0 3px #070b16, 0 0 0 5px var(--c-primary);
+}
+
+/* --- High contrast --------------------------------------------------------
+   Raises every surface/text pair well past WCAG AA and thickens borders so
+   the UI survives a washed-out classroom projector. */
+[data-high-contrast='true'] {
+  --c-bg: #000000;
+  --c-bg-deep: #000000;
+  --c-surface: #0b0b0b;
+  --c-panel: #121212;
+  --c-panel-raised: #1c1c1c;
+  --c-border: #7a7a7a;
+  --c-border-strong: #ffffff;
+  --c-text: #ffffff;
+  --c-text-muted: #e2e2e2;
+  --c-text-dim: #c4c4c4;
+  --c-primary: #55e6ff;
+  --c-accent: #ffb020;
+  --c-success: #4ade80;
+  --c-warning: #fbbf24;
+  --c-danger: #ff6b6b;
+}
+
+/* --- Colour-blind-safe palette --------------------------------------------
+   Swaps the red/green pairing for the Okabe–Ito safe set. Shapes and icons
+   still carry the meaning; this simply reduces the effort needed. */
+[data-colourblind='true'] {
+  --c-success: #009e73;
+  --c-danger: #d55e00;
+  --c-warning: #e69f00;
+  --c-info: #56b4e9;
+  --c-purple: #cc79a7;
+  --c-label-clear: #56b4e9;
+  --c-label-obstacle: #e69f00;
+  --c-label-person: #cc79a7;
+  --c-label-hazard: #d55e00;
+  --c-label-supply: #009e73;
+}
+
+/* --- Reduced motion -------------------------------------------------------
+   Honoured both from the OS setting and from the in-game toggle, because
+   school machines often have the OS setting locked. */
+[data-reduced-motion='true'] *,
+[data-reduced-motion='true'] *::before,
+[data-reduced-motion='true'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* --- Presentation mode: bigger everything, for the projector --------------- */
+[data-presentation='true'] {
+  --text-scale: 1.25;
+}
