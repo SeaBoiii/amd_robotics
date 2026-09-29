@@ -45,6 +45,16 @@ export interface SimulationEvent {
   data?: Record<string, unknown>;
 }
 
+/** What an autonomous navigator believes about the world (Engineer Challenge only). */
+export interface NavigationOverlay {
+  /** One char per cell, row-major: '?' unknown, '.' free, '#' blocked, '~' hazard. */
+  known: string;
+  plannedPath: { x: number; y: number }[];
+  goal: { x: number; y: number };
+  nodesExpanded: number;
+  totalComputeMs: number;
+}
+
 export interface SimulationSnapshot {
   phase: SimulationPhase;
   tick: number;
@@ -63,6 +73,7 @@ export interface SimulationSnapshot {
   result: MissionResult | null;
   /** Tiles currently inside sensor range, for the sensor-pulse overlay. */
   sensedTiles: { x: number; y: number }[];
+  navigation?: NavigationOverlay;
 }
 
 export interface SimulationControls {

@@ -16,12 +16,15 @@ import type {
   Action,
   ConfidencePolicy,
   Difficulty,
+  Heading,
   Mission,
   MissionResult,
+  NavigationOverlay,
   ObjectiveResult,
   Prediction,
   RoverBuild,
   RoverState,
+  RoverStats,
   RunTelemetry,
   SensorReading,
   SimulationEvent,
@@ -37,7 +40,7 @@ import { computeStats } from '@/robotics/components';
 import { evaluateProgram } from '@/program/ruleEngine';
 import { clamp, round } from '@/utils/format';
 import { createRng, type Rng } from '@/utils/rng';
-import { readSensors, sensedTiles } from './sensors';
+import { readSensors, sensedTiles, type SensorContext } from './sensors';
 import { awardBadges, buildSuggestions, computeScore, type ScoreInput } from './scoring';
 import { HEADING_VECTORS, HAZARD_TILES, SLOW_TILES, tileToLabel, turn, World } from './world';
 
@@ -45,6 +48,36 @@ import { HEADING_VECTORS, HAZARD_TILES, SLOW_TILES, tileToLabel, turn, World } f
 const MAX_TICKS = 3000;
 /** How many ticks of no progress count as "stuck". */
 const STALL_LIMIT = 40;
+
+export interface PerceivedTile {
+  x: number;
+  y: number;
+  char: '.' | '#' | '~';
+}
+
+export interface NavigatorObservation {
+  x: number;
+  y: number;
+  heading: Heading;
+  perceived: PerceivedTile[];
+  /** True when the previous forward move hit something. */
+  bumped: boolean;
+}
+
+export interface NavigatorDecision {
+  action: Action;
+  reason: string;
+  /** Simulated on-board planning time added to the clock. */
+  computeMs: number;
+}
+
+/** An autonomous controller that replaces the student rule program. */
+export interface Navigator {
+  reset(): void;
+  perceive(context: SensorContext): PerceivedTile[];
+  decide(observation: NavigatorObservation): NavigatorDecision;
+  overlay(): NavigationOverlay;
+}
 
 export interface SimulationConfig {
   mission: Mission;
@@ -59,6 +92,10 @@ export interface SimulationConfig {
   timeLimitOverride?: number;
   /** Overrides the mission seed. Leave undefined for repeatable classroom runs. */
   seedOverride?: number;
+  /** Replaces rule evaluation with an autonomous navigator. */
+  navigator?: Navigator;
+  /** Replaces stats derived from the student catalogue. */
+  statsOverride?: RoverStats;
 }
 
 export class Simulation {
@@ -88,6 +125,8 @@ export class Simulation {
   private decisionReason = 'Waiting to start.';
   private events: SimulationEvent[] = [];
   private result: MissionResult | null = null;
+  private perceived: PerceivedTile[] = [];
+  private bumped = false;
 
   private telemetry: RunTelemetry = Simulation.emptyTelemetry(0);
 
@@ -127,7 +166,7 @@ export class Simulation {
   reset(): void {
     this.world = new World(this.mission);
     this.rng = createRng(this.seed);
-    this.stats = computeStats(this.config.build);
+    this.stats = this.config.statsOverride ?? computeStats(this.config.build);
 
     const capacity = Math.max(10, this.stats.batteryCapacity);
     this.rover = {
@@ -156,6 +195,9 @@ export class Simulation {
     this.decisionReason = 'Waiting to start.';
     this.events = [];
     this.result = null;
+    this.perceived = [];
+    this.bumped = false;
+    this.config.navigator?.reset();
     this.telemetry = Simulation.emptyTelemetry(this.seed);
     this.telemetry.energyRemaining = capacity;
   }
@@ -205,7 +247,7 @@ export class Simulation {
   }
 
   private sense(): void {
-    this.readings = readSensors({
+    const context: SensorContext = {
       world: this.world,
       x: this.rover.x,
       y: this.rover.y,
@@ -214,7 +256,17 @@ export class Simulation {
       difficultyNoise: this.modifiers.sensorNoise,
       rng: this.rng,
       timestamp: this.elapsedMs,
-    });
+    };
+
+    if (this.config.navigator) {
+      this.readings = [];
+      this.prediction = null;
+      this.predictionCorrect = null;
+      this.perceived = this.config.navigator.perceive(context);
+      return;
+    }
+
+    this.readings = readSensors(context);
 
     this.prediction = null;
     this.predictionCorrect = null;
@@ -245,7 +297,23 @@ export class Simulation {
     }
   }
 
-  private decide() {
+  private decide(): { action: Action } {
+    const navigator = this.config.navigator;
+    if (navigator) {
+      const decision = navigator.decide({
+        x: this.rover.x,
+        y: this.rover.y,
+        heading: this.rover.heading,
+        perceived: this.perceived,
+        bumped: this.bumped,
+      });
+      this.elapsedMs += Math.max(0, decision.computeMs);
+      this.activeRule = null;
+      this.decisionReason = decision.reason;
+      this.log('rule', decision.reason, { action: decision.action.type });
+      return decision;
+    }
+
     const match = evaluateProgram(this.config.program, {
       readings: this.readings,
       prediction: this.prediction,
@@ -263,6 +331,7 @@ export class Simulation {
   // --------------------------------------------------------------- actions
 
   private act(action: Action): void {
+    this.bumped = false;
     // Responsible-AI throttle: a prediction the model is only half-sure about
     // makes the rover move cautiously, even if the student's rule said "go".
     const cautious =
@@ -371,6 +440,7 @@ export class Simulation {
     if (this.world.isSolid(targetX, targetY)) {
       this.rover.collisions += 1;
       this.telemetry.collisions += 1;
+      this.bumped = true;
       this.rover.status = 'stopped';
       this.spendEnergy(0.4);
       this.log('collision', 'The rover bumped into something and stopped.', {
@@ -753,12 +823,10 @@ export class Simulation {
       objectives: this.evaluateObjectives(),
       events: this.events,
       result: this.result,
-      sensedTiles: sensedTiles(
-        this.rover.x,
-        this.rover.y,
-        this.rover.heading,
-        this.stats.sensorRange,
-      ),
+      sensedTiles: this.config.navigator
+        ? this.perceived.map(({ x, y }) => ({ x, y }))
+        : sensedTiles(this.rover.x, this.rover.y, this.rover.heading, this.stats.sensorRange),
+      navigation: this.config.navigator?.overlay(),
     };
   }
 

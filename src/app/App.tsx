@@ -11,6 +11,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Loading } from '@/components/ui';
 import { ErrorBoundary } from './ErrorBoundary';
 import { TopBar } from './TopBar';
+import { EngineerShell, RequireEngineerSession } from '@/screens/Engineer/EngineerShell';
 import { useAppearance } from '@/hooks/useAppearance';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { useTeamStore } from '@/store/useTeamStore';
@@ -28,6 +29,10 @@ const EducatorMode = lazy(() => import('@/screens/Educator/EducatorMode'));
 const TechCorner = lazy(() => import('@/screens/TechCorner/TechCorner'));
 const Settings = lazy(() => import('@/screens/Settings/Settings'));
 const Credits = lazy(() => import('@/screens/Credits/Credits'));
+const EngineerLanding = lazy(() => import('@/screens/Engineer/EngineerLanding'));
+const EngineerBuild = lazy(() => import('@/screens/Engineer/EngineerBuild'));
+const EngineerRun = lazy(() => import('@/screens/Engineer/EngineerRun'));
+const EngineerLeaderboard = lazy(() => import('@/screens/Engineer/EngineerLeaderboard'));
 
 /** Sends a visitor with no team profile back to Team Setup. */
 function RequireTeam({ children }: { children: React.ReactNode }) {
@@ -62,6 +67,43 @@ export default function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/team-setup" element={<TeamSetup />} />
           <Route path="/credits" element={<Credits />} />
+
+          <Route
+            path="/engineer"
+            element={
+              <EngineerShell>
+                <EngineerLanding />
+              </EngineerShell>
+            }
+          />
+          <Route
+            path="/engineer/build"
+            element={
+              <RequireEngineerSession>
+                <EngineerShell>
+                  <EngineerBuild />
+                </EngineerShell>
+              </RequireEngineerSession>
+            }
+          />
+          <Route
+            path="/engineer/run"
+            element={
+              <RequireEngineerSession>
+                <EngineerShell>
+                  <EngineerRun />
+                </EngineerShell>
+              </RequireEngineerSession>
+            }
+          />
+          <Route
+            path="/engineer/leaderboard"
+            element={
+              <EngineerShell>
+                <EngineerLeaderboard />
+              </EngineerShell>
+            }
+          />
 
           <Route
             path="/settings"

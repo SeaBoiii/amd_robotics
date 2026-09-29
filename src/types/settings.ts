@@ -23,6 +23,8 @@ export interface EducatorSettings {
   timeLimitOverrideSeconds: number;
   /** Unlocks every mission regardless of progress. */
   unlockAllMissions: boolean;
+  /** Build-and-run window for the Engineer Challenge. */
+  engineerSessionMinutes: number;
 }
 
 export interface BrandingConfig {

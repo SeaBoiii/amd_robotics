@@ -56,6 +56,9 @@ export default function Landing() {
             >
               🎓 Educator mode
             </Button>
+            <Button size="lg" variant="ghost" onClick={() => navigate('/engineer')}>
+              🏁 Engineer Challenge
+            </Button>
           </div>
 
           <div className="landing__loop" aria-label="The core learning loop">

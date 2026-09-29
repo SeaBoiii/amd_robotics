@@ -39,6 +39,7 @@ const DEFAULT_EDUCATOR: EducatorSettings = {
   instantTrainingAllowed: true,
   timeLimitOverrideSeconds: 0,
   unlockAllMissions: false,
+  engineerSessionMinutes: 8,
 };
 
 export const useSettingsStore = create<SettingsState>()(
@@ -81,6 +82,7 @@ export const useSettingsStore = create<SettingsState>()(
         instantTrainingAllowed,
         timeLimitOverrideSeconds,
         unlockAllMissions,
+        engineerSessionMinutes,
       }) => ({
         highContrast,
         reducedMotion,
@@ -96,6 +98,7 @@ export const useSettingsStore = create<SettingsState>()(
         instantTrainingAllowed,
         timeLimitOverrideSeconds,
         unlockAllMissions,
+        engineerSessionMinutes,
       }),
     },
   ),

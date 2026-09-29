@@ -151,6 +151,27 @@ export default function EducatorMode() {
               />
               <span className="field__hint">Set to 0 to leave missions as designed.</span>
             </div>
+
+            <div className="field" style={{ marginTop: 'var(--sp-4)' }}>
+              <label className="field__label" htmlFor="engineer-minutes">
+                Engineer Challenge session: {settings.engineerSessionMinutes} min
+              </label>
+              <input
+                id="engineer-minutes"
+                className="range"
+                type="range"
+                min={3}
+                max={15}
+                step={1}
+                value={settings.engineerSessionMinutes}
+                onChange={(event) =>
+                  settings.setEducator('engineerSessionMinutes', Number(event.target.value))
+                }
+              />
+              <span className="field__hint">
+                Time each engineer gets to build and run. Applies to new sessions.
+              </span>
+            </div>
           </Card>
 
           <Card title="Talking points">

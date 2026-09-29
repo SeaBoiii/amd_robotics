@@ -39,6 +39,8 @@ export function TextGrid({
 }) {
   const byKey = new Map(snapshot.tiles.map((tile) => [`${tile.x},${tile.y}`, tile]));
   const sensed = new Set(snapshot.sensedTiles.map((tile) => `${tile.x},${tile.y}`));
+  const navigation = snapshot.navigation;
+  const planned = new Set(navigation?.plannedPath.map((tile) => `${tile.x},${tile.y}`) ?? []);
 
   return (
     <table className="text-grid">
@@ -53,23 +55,35 @@ export function TextGrid({
               const tile = byKey.get(`${x},${y}`);
               const char = tile && tile.active ? tile.char : '.';
               const isRover = snapshot.rover.x === x && snapshot.rover.y === y;
+              const isGoal = navigation?.goal.x === x && navigation.goal.y === y;
+              const unexplored = navigation?.known[y * width + x] === '?';
+              const meaning = isGoal
+                ? 'Exit'
+                : unexplored
+                  ? 'Unexplored'
+                  : planned.has(`${x},${y}`)
+                    ? `${TILE_MEANING[char] ?? 'Road'}, on planned route`
+                    : (TILE_MEANING[char] ?? 'Road');
+              const glyph = isGoal
+                ? '⚑'
+                : unexplored
+                  ? '░'
+                  : planned.has(`${x},${y}`)
+                    ? '•'
+                    : (TILE_GLYPH[char] ?? '·');
               return (
                 <td
                   key={x}
                   className={`text-grid__cell${sensed.has(`${x},${y}`) ? ' text-grid__cell--sensed' : ''}${
                     isRover ? ' text-grid__cell--rover' : ''
                   }`}
-                  title={
-                    isRover
-                      ? `Rover, facing ${snapshot.rover.heading}`
-                      : (TILE_MEANING[char] ?? 'Road')
-                  }
+                  title={isRover ? `Rover, facing ${snapshot.rover.heading}` : meaning}
                 >
                   <span aria-hidden="true">
-                    {isRover ? HEADING_GLYPH[snapshot.rover.heading] : (TILE_GLYPH[char] ?? '·')}
+                    {isRover ? HEADING_GLYPH[snapshot.rover.heading] : glyph}
                   </span>
                   <span className="sr-only">
-                    {isRover ? `Rover facing ${snapshot.rover.heading}` : (TILE_MEANING[char] ?? 'Road')}
+                    {isRover ? `Rover facing ${snapshot.rover.heading}` : meaning}
                   </span>
                 </td>
               );

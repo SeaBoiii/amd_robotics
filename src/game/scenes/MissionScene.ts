@@ -200,6 +200,7 @@ export class MissionScene extends Phaser.Scene {
 
   private renderOverlay(snapshot: SimulationSnapshot): void {
     this.overlay.clear();
+    if (snapshot.navigation) this.renderNavigation(snapshot);
     if (!this.options.showSensorOverlay) return;
 
     this.overlay.fillStyle(0x22d3ee, 0.16);
@@ -214,6 +215,34 @@ export class MissionScene extends Phaser.Scene {
         this.overlay.lineStyle(2, correct === false ? 0xef4444 : 0x22c55e, 0.9);
         this.overlay.strokeRect(ahead.x * TILE + 2, ahead.y * TILE + 2, TILE - 4, TILE - 4);
       }
+    }
+  }
+
+  /** Fog over unexplored cells, the current plan, and the exit marker. */
+  private renderNavigation(snapshot: SimulationSnapshot): void {
+    const navigation = snapshot.navigation!;
+    const width = Math.round(this.options.width / TILE);
+    const g = this.overlay;
+
+    g.fillStyle(0x05080f, 0.82);
+    for (let index = 0; index < navigation.known.length; index++) {
+      if (navigation.known[index] !== '?') continue;
+      g.fillRect((index % width) * TILE, Math.floor(index / width) * TILE, TILE, TILE);
+    }
+
+    const { goal } = navigation;
+    g.lineStyle(3, 0x22c55e, 1);
+    g.strokeRect(goal.x * TILE + 4, goal.y * TILE + 4, TILE - 8, TILE - 8);
+    g.fillStyle(0x22c55e, 0.35);
+    g.fillRect(goal.x * TILE + 4, goal.y * TILE + 4, TILE - 8, TILE - 8);
+
+    const path = navigation.plannedPath;
+    if (path.length > 1) {
+      g.lineStyle(3, 0xfbbf24, 0.85);
+      g.beginPath();
+      g.moveTo(path[0].x * TILE + TILE / 2, path[0].y * TILE + TILE / 2);
+      for (const point of path.slice(1)) g.lineTo(point.x * TILE + TILE / 2, point.y * TILE + TILE / 2);
+      g.strokePath();
     }
   }
 
