@@ -25,6 +25,8 @@ export interface PhaserStageProps {
   reducedMotion: boolean;
   showSensorOverlay: boolean;
   showDebug: boolean;
+  /** Let the canvas grow past its native size (large wall displays). */
+  allowUpscale?: boolean;
   /** Called once with a push function the parent can use each frame. */
   onReady: (push: (snapshot: SimulationSnapshot) => void) => void;
   onFailure: (message: string) => void;
@@ -37,6 +39,7 @@ export function PhaserStage({
   reducedMotion,
   showSensorOverlay,
   showDebug,
+  allowUpscale = false,
   onReady,
   onFailure,
 }: PhaserStageProps) {
@@ -82,7 +85,7 @@ export function PhaserStage({
           // The stage element centres the canvas with CSS grid. Letting Phaser
           // also apply its own centring margins offsets the map twice.
           autoCenter: Phaser.Scale.NO_CENTER,
-          max: { width, height },
+          max: allowUpscale ? undefined : { width, height },
         },
         render: { pixelArt: false, antialias: true },
       });

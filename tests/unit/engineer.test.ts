@@ -6,6 +6,7 @@ import { compareEntries, csvCell, rankEntries, toLeaderboardCsv, upsertBest } fr
 import { DEFAULT_NAVIGATION } from '@/engineer/maze';
 import { KnownMap } from '@/engineer/navigation/knownMap';
 import { createNavigator } from '@/engineer/navigation/navigator';
+import { generateEngineerName } from '@/engineer/names';
 import { planPath } from '@/engineer/navigation/planner';
 import type { LeaderboardEntry, NavigationConfig } from '@/engineer/types';
 import { remainingMs } from '@/store/useEngineerSessionStore';
@@ -181,6 +182,18 @@ describe('leaderboard', () => {
     expect(csvCell(-3)).toBe('-3');
     const csv = toLeaderboardCsv([entry({ name: '@evil' })]);
     expect(csv.split('\r\n')[1]).toContain("'@evil");
+  });
+});
+
+describe('generated names', () => {
+  it('produces "Adjective Noun NN" and avoids names already on the board', () => {
+    const name = generateEngineerName();
+    expect(name).toMatch(/^[A-Z][a-z]+ [A-Z][a-z]+ \d{2}$/);
+
+    let calls = 0;
+    // First candidate collides (case-insensitively), second is fresh.
+    const random = () => (calls++ < 3 ? 0 : 0.99);
+    expect(generateEngineerName(['turbo falcon 10'], random)).not.toBe('Turbo Falcon 10');
   });
 });
 

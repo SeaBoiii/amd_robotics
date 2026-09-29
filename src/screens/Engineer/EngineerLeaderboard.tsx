@@ -6,6 +6,9 @@ import { useEngineerSessionStore } from '@/store/useEngineerSessionStore';
 import { LEADERBOARD_STORAGE_KEY, useLeaderboardStore } from '@/store/useLeaderboardStore';
 import { downloadFile, formatDateTime } from '@/utils/format';
 
+// Rows that fit a 16:9 wall display without scrolling; the full list is in the CSV.
+const VISIBLE_ROWS = 10;
+
 export default function EngineerLeaderboard() {
   const entries = useLeaderboardStore((state) => state.entries);
   const clear = useLeaderboardStore((state) => state.clear);
@@ -15,6 +18,12 @@ export default function EngineerLeaderboard() {
 
   const ranked = useMemo(() => rankEntries(entries), [entries]);
   const me = nameKey(engineerName);
+  const visible = useMemo(() => {
+    const rows = ranked.map((entry, index) => ({ entry, rank: index + 1 }));
+    const top = rows.slice(0, VISIBLE_ROWS);
+    const mine = rows.find((row) => row.rank > VISIBLE_ROWS && nameKey(row.entry.name) === me);
+    return mine ? [...top.slice(0, VISIBLE_ROWS - 1), mine] : top;
+  }, [ranked, me]);
 
   // A big-screen tab picks up results posted from the build laptops' tabs.
   useEffect(() => {
@@ -26,12 +35,14 @@ export default function EngineerLeaderboard() {
   }, [reload]);
 
   return (
-    <div className="stack">
-      <div className="row row--between">
+    <div className="engineer-screen">
+      <div className="engineer-screen__header">
         <div>
-          <p className="eyebrow">Engineer Challenge</p>
-          <h1 style={{ marginBottom: 0 }}>Leaderboard</h1>
-          <p className="text-muted">Fastest time to the exit. Ties: fewer collisions, then less energy.</p>
+          <h1>Leaderboard</h1>
+          <p className="text-muted">
+            Fastest time to the exit. Ties: fewer collisions, then less energy.
+            {ranked.length > VISIBLE_ROWS ? ` Showing top ${VISIBLE_ROWS} of ${ranked.length}.` : ''}
+          </p>
         </div>
         <div className="row">
           <Button
@@ -66,12 +77,12 @@ export default function EngineerLeaderboard() {
               </tr>
             </thead>
             <tbody>
-              {ranked.map((entry, index) => (
+              {visible.map(({ entry, rank }) => (
                 <tr
                   key={entry.id}
                   className={nameKey(entry.name) === me ? 'engineer-leaderboard__me' : undefined}
                 >
-                  <td className="mono">{index + 1}</td>
+                  <td className="mono">{rank}</td>
                   <th scope="row">{entry.name}</th>
                   <td className="mono">{entry.timeSeconds.toFixed(1)} s</td>
                   <td className="mono">{entry.collisions}</td>

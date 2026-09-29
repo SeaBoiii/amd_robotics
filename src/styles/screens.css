@@ -862,8 +862,18 @@
   padding-block: var(--sp-3);
 }
 
-.engineer-fullscreen {
-  gap: var(--sp-2);
+/* Icon-only, but still a 48px-class tap target. */
+.engineer-touch .btn.engineer-fullscreen {
+  width: 3rem;
+  height: 3rem;
+  min-height: 3rem;
+  padding: 0;
+  font-size: var(--fs-lg);
+}
+
+.engineer-session-actions {
+  display: grid;
+  gap: var(--sp-3);
 }
 
 .segmented {
@@ -927,6 +937,284 @@
   border-radius: var(--radius);
 }
 
+.engineer-touch .engineer-name {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  min-height: 3.5rem;
+}
+
+.osk {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-2);
+  background: var(--c-bg-deep);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.osk__row {
+  display: flex;
+  justify-content: center;
+  gap: var(--sp-1);
+}
+
+.osk__key {
+  flex: 1 1 0;
+  max-width: 4rem;
+  min-height: 3.25rem;
+  font: inherit;
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--c-text);
+  background: var(--c-panel-raised);
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.osk__key:active:not(:disabled) {
+  transform: scale(0.94);
+  background: var(--c-primary);
+  color: #04121a;
+}
+
+.osk__key:disabled {
+  opacity: 0.35;
+}
+
+.osk__key--wide {
+  flex-grow: 2;
+  max-width: 8rem;
+  font-size: var(--fs-md);
+}
+
+.osk__key--space {
+  flex-grow: 6;
+  max-width: none;
+  font-size: var(--fs-md);
+}
+
+
+/* --- Engineer kiosk: one screen, no scrolling, scales with the display ---- */
+/* 1rem ≈ 16px on a 1920×1080 panel and ≈ 32px on 4K, so the layout never reflows. */
+html.engineer-kiosk {
+  font-size: clamp(12px, min(0.84vw, 1.5vh), 40px);
+}
+
+html.engineer-kiosk body {
+  overflow: hidden;
+}
+
+.engineer-touch {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.engineer-touch .topbar {
+  position: static;
+  flex: none;
+  padding: var(--sp-2) var(--sp-5);
+}
+
+.engineer-touch .topbar__title {
+  display: block;
+  font-size: var(--fs-md);
+}
+
+.engineer-touch .topbar__sub {
+  display: block;
+}
+
+.engineer-touch .topbar__link {
+  font-size: var(--fs-md);
+}
+
+.engineer-run-stage .sim-controls .switch {
+  width: auto;
+  flex: none;
+}
+
+.engineer-page {
+  flex: 1;
+  min-height: 0;
+  max-width: none;
+  padding: var(--sp-4) var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  /* Safety net only: layouts below are sized to fit without it. */
+  overflow: auto;
+}
+
+.engineer-page > * {
+  flex: 1;
+  min-height: 0;
+}
+
+.engineer-screen {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--sp-3);
+}
+
+.engineer-screen__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+
+.engineer-screen__header h1 {
+  margin: 0;
+}
+
+.engineer-screen__header p {
+  margin: 0;
+}
+
+.engineer-landing {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--sp-6);
+  align-items: center;
+}
+
+.engineer-landing .landing__title {
+  font-size: var(--fs-3xl);
+}
+
+.engineer-cols {
+  display: grid;
+  gap: var(--sp-3);
+  min-height: 0;
+}
+
+.engineer-cols--build {
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.engineer-cols--run {
+  grid-template-columns: minmax(0, 1fr) 26rem;
+}
+
+.engineer-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  min-height: 0;
+}
+
+.engineer-touch .card {
+  padding: var(--sp-3) var(--sp-4);
+}
+
+.engineer-touch .card__header {
+  margin-bottom: var(--sp-2);
+}
+
+.engineer-section-label {
+  margin: var(--sp-2) 0 var(--sp-1);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--c-text-dim);
+}
+
+.engineer-section-label:first-child {
+  margin-top: 0;
+}
+
+.engineer-touch .engineer-parts {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.engineer-touch .engineer-part {
+  min-height: 4.25rem;
+  padding: var(--sp-2) var(--sp-3);
+  gap: 0;
+}
+
+.engineer-part__summary {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.engineer-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-2);
+}
+
+.engineer-touch .stat__value {
+  font-size: var(--fs-xl);
+}
+
+.engineer-stats--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Reserve three lines so changing reasons never shift the column. */
+.engineer-reason {
+  min-height: 4.65em;
+  margin: 0 0 var(--sp-1);
+}
+
+/* The canvas is fitted into whatever height is left after the controls. */
+.engineer-run-stage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  min-height: 0;
+}
+
+.engineer-run-stage .sim-stage {
+  flex: 1;
+  min-height: 0;
+  display: block;
+  position: relative;
+}
+
+.engineer-run-stage .phaser-stage {
+  position: absolute;
+  inset: 0;
+}
+
+.engineer-run-stage .text-grid {
+  font-size: var(--fs-xs);
+}
+
+.engineer-run-stage .text-grid__cell {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.engineer-touch .table th,
+.engineer-touch .table td {
+  padding-block: var(--sp-2);
+}
+
+.engineer-touch .engineer-leaderboard td,
+.engineer-touch .engineer-leaderboard tbody th {
+  padding-block: var(--sp-3);
+  font-size: var(--fs-xl);
+}
+
+.engineer-touch .engineer-leaderboard tbody th {
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--c-text);
+  font-weight: 700;
+}
+
+.engineer-touch .engineer-leaderboard td.text-xs {
+  font-size: var(--fs-sm);
+}
 
 /* --- Print (certificates and notebook exports) ---------------------------- */
 @media print {

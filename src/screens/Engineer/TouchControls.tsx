@@ -96,6 +96,62 @@ export function Stepper({
   );
 }
 
+const KEY_ROWS = ['1234567890', 'QWERTYUIOP', 'ASDFGHJKL-', 'ZXCVBNM'];
+
+/** Types into `value`; letters are capitalised at the start of each word. */
+export function OnScreenKeyboard({
+  value,
+  onChange,
+  maxLength,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  maxLength: number;
+}) {
+  const append = (char: string) => {
+    if (value.length >= maxLength) return;
+    const wordStart = value.length === 0 || value.endsWith(' ');
+    onChange(value + (wordStart ? char.toUpperCase() : char.toLowerCase()));
+  };
+
+  return (
+    <div className="osk" role="group" aria-label="On-screen keyboard">
+      {KEY_ROWS.map((row) => (
+        <div className="osk__row" key={row}>
+          {row.split('').map((char) => (
+            <button key={char} type="button" className="osk__key" onClick={() => append(char)}>
+              {char}
+            </button>
+          ))}
+        </div>
+      ))}
+      <div className="osk__row">
+        <button type="button" className="osk__key osk__key--wide" onClick={() => onChange('')}>
+          Clear
+        </button>
+        <button
+          type="button"
+          className="osk__key osk__key--space"
+          aria-label="Space"
+          disabled={value.length === 0 || value.endsWith(' ')}
+          onClick={() => append(' ')}
+        >
+          space
+        </button>
+        <button
+          type="button"
+          className="osk__key osk__key--wide"
+          aria-label="Backspace"
+          disabled={value.length === 0}
+          onClick={() => onChange(value.slice(0, -1))}
+        >
+          ⌫
+        </button>
+      </div>
+    </div>
+  );
+}
+
 type FullscreenDocument = Document & {
   webkitFullscreenElement?: Element | null;
   webkitFullscreenEnabled?: boolean;

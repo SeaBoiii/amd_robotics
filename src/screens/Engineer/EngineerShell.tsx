@@ -1,8 +1,10 @@
 /** Chrome shared by every Engineer Challenge screen: nav plus the session countdown. */
 
 import { useEffect, useState, type ReactNode } from 'react';
-import { Navigate, NavLink } from 'react-router-dom';
+import { Navigate, NavLink, useNavigate } from 'react-router-dom';
+import { Button, Modal } from '@/components/ui';
 import { remainingMs, useEngineerSessionStore } from '@/store/useEngineerSessionStore';
+import { useSettingsStore } from '@/store/useSettingsStore';
 import { formatSeconds } from '@/utils/format';
 import { useFullscreen } from './TouchControls';
 
@@ -47,7 +49,19 @@ function Countdown() {
 export function EngineerShell({ children }: { children: ReactNode }) {
   const engineerName = useEngineerSessionStore((state) => state.engineerName);
   const startedAt = useEngineerSessionStore((state) => state.startedAt);
+  const startSession = useEngineerSessionStore((state) => state.startSession);
+  const endSession = useEngineerSessionStore((state) => state.endSession);
+  const minutes = useSettingsStore((state) => state.engineerSessionMinutes);
+  const navigate = useNavigate();
+  const [sessionMenuOpen, setSessionMenuOpen] = useState(false);
   const fullscreen = useFullscreen();
+
+  // Scales rem to the viewport so a 1080p or 4K wall display shows the same one-screen layout.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.add('engineer-kiosk');
+    return () => root.classList.remove('engineer-kiosk');
+  }, []);
 
   return (
     <div className="app-shell engineer-touch">
@@ -79,20 +93,57 @@ export function EngineerShell({ children }: { children: ReactNode }) {
         <div className="row" style={{ gap: 'var(--sp-2)' }}>
           {startedAt !== null && engineerName ? <span className="pill">👷 {engineerName}</span> : null}
           <Countdown />
+          {startedAt !== null ? (
+            <Button onClick={() => setSessionMenuOpen(true)}>⏻ Session</Button>
+          ) : null}
           {fullscreen.supported ? (
             <button
               type="button"
               className="btn engineer-fullscreen"
               aria-pressed={fullscreen.isFullscreen}
+              aria-label={fullscreen.isFullscreen ? 'Exit full screen' : 'Full screen'}
+              title={fullscreen.isFullscreen ? 'Exit full screen' : 'Full screen'}
               onClick={fullscreen.toggle}
             >
               <span aria-hidden="true">{fullscreen.isFullscreen ? '✕' : '⛶'}</span>
-              {fullscreen.isFullscreen ? 'Exit full screen' : 'Full screen'}
             </button>
           ) : null}
         </div>
       </header>
-      <main id="main" className="page">
+      <Modal open={sessionMenuOpen} onClose={() => setSessionMenuOpen(false)} title="Session">
+        <p>
+          Your leaderboard entry is kept either way. Restarting gives <strong>{engineerName}</strong> a
+          fresh {minutes}-minute timer and a baseline rover.
+        </p>
+        <div className="engineer-session-actions">
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={() => {
+              startSession(engineerName, minutes * 60);
+              setSessionMenuOpen(false);
+              navigate('/engineer/build');
+            }}
+          >
+            ↻ Restart session
+          </Button>
+          <Button
+            variant="danger"
+            size="lg"
+            onClick={() => {
+              endSession();
+              setSessionMenuOpen(false);
+              navigate('/engineer');
+            }}
+          >
+            ⏹ End session
+          </Button>
+          <Button size="lg" onClick={() => setSessionMenuOpen(false)}>
+            Cancel
+          </Button>
+        </div>
+      </Modal>
+      <main id="main" className="page engineer-page">
         {children}
       </main>
     </div>

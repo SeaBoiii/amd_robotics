@@ -127,11 +127,10 @@ export default function EngineerRun() {
   const bestRun = runs.filter((run) => run.success).sort((a, b) => a.timeSeconds - b.timeSeconds)[0];
 
   return (
-    <div className="stack">
-      <div className="row row--between">
+    <div className="engineer-screen">
+      <div className="engineer-screen__header">
         <div>
-          <p className="eyebrow">Step 2</p>
-          <h1 style={{ marginBottom: 0 }}>{ENGINEER_MAZE.title}</h1>
+          <h1>{ENGINEER_MAZE.title}</h1>
           <p className="text-muted">
             {PLANNER_LABELS[navigation.planner]} · {summariseBuild(build)}
           </p>
@@ -139,36 +138,8 @@ export default function EngineerRun() {
         <Button onClick={() => navigate('/engineer/build')}>🔧 Change build</Button>
       </div>
 
-      {expired ? (
-        <Callout tone="warning" title="Time is up">
-          You can keep experimenting, but new runs no longer count for the leaderboard.
-        </Callout>
-      ) : null}
-      {buildErrors.length > 0 ? (
-        <Callout tone="danger" title="This build cannot run">
-          {buildErrors.map((problem) => problem.message).join(' ')}
-        </Callout>
-      ) : null}
-
-      {result ? (
-        <Callout
-          tone={result.success ? 'success' : 'danger'}
-          title={result.success ? `Exit reached in ${result.telemetry.elapsedSeconds.toFixed(1)} s` : 'Run failed'}
-        >
-          {result.success ? (
-            <p>
-              {result.telemetry.collisions} collisions · {result.telemetry.energyUsed} energy used ·{' '}
-              {result.telemetry.ticks} steps.{' '}
-              {posted ? `Posted. Your best is ranked #${rank ?? '?'}.` : 'Not posted (session over).'}
-            </p>
-          ) : (
-            <p>{result.failureReason}</p>
-          )}
-        </Callout>
-      ) : null}
-
-      <div className="simulator">
-        <div className="stack">
+      <div className="engineer-cols engineer-cols--run">
+        <div className="engineer-run-stage">
           <div className="sim-stage">
             {showTextView ? (
               <TextGrid snapshot={snapshot} width={ENGINEER_MAZE.map.width} height={ENGINEER_MAZE.map.height} />
@@ -180,6 +151,7 @@ export default function EngineerRun() {
                 reducedMotion={reducedMotion}
                 showSensorOverlay
                 showDebug={false}
+                allowUpscale
                 onReady={handlePhaserReady}
                 onFailure={handlePhaserFailure}
               />
@@ -225,49 +197,71 @@ export default function EngineerRun() {
             <div className="spacer" />
             <Switch checked={showTextView} onChange={setUseTextView} label="Text map" hint="Screen-reader friendly" />
           </div>
-
-          <div className="sim-hud">
-            <Stat label="Sim time" value={`${(snapshot.elapsedMs / 1000).toFixed(1)} s`} sub={`limit ${formatSeconds(ENGINEER_MAZE.timeLimit)}`} />
-            <Stat label="Steps" value={snapshot.tick} />
-            <Stat
-              label="Collisions"
-              value={snapshot.rover.collisions}
-              tone={snapshot.rover.collisions > 0 ? 'warning' : undefined}
-            />
-            <Stat
-              label="Energy"
-              value={snapshot.rover.energy.toFixed(0)}
-              sub={`of ${snapshot.rover.maxEnergy.toFixed(0)}`}
-            />
-            <Stat label="Compute" value={`${snapshot.navigation?.totalComputeMs ?? 0} ms`} />
-          </div>
         </div>
 
-        <aside className="stack">
+        <aside className="engineer-col">
+          {expired ? (
+            <Callout tone="warning" title="Time is up">
+              New runs no longer count for the leaderboard.
+            </Callout>
+          ) : null}
+          {buildErrors.length > 0 ? (
+            <Callout tone="danger" title="This build cannot run">
+              {buildErrors.map((problem) => problem.message).join(' ')}
+            </Callout>
+          ) : null}
+
+          {result ? (
+            <Callout
+              tone={result.success ? 'success' : 'danger'}
+              title={result.success ? `Exit reached in ${result.telemetry.elapsedSeconds.toFixed(1)} s` : 'Run failed'}
+            >
+              {result.success ? (
+                <p style={{ margin: 0 }}>
+                  {result.telemetry.collisions} collisions · {result.telemetry.energyUsed} energy.{' '}
+                  {posted ? `Posted. Your best is ranked #${rank ?? '?'}.` : 'Not posted (session over).'}
+                </p>
+              ) : (
+                <p style={{ margin: 0 }}>{result.failureReason}</p>
+              )}
+            </Callout>
+          ) : null}
+
+          <Card title="Telemetry">
+            <div className="engineer-stats engineer-stats--3">
+              <Stat label="Sim time" value={`${(snapshot.elapsedMs / 1000).toFixed(1)} s`} sub={`limit ${formatSeconds(ENGINEER_MAZE.timeLimit)}`} />
+              <Stat label="Steps" value={snapshot.tick} />
+              <Stat
+                label="Collisions"
+                value={snapshot.rover.collisions}
+                tone={snapshot.rover.collisions > 0 ? 'warning' : undefined}
+              />
+              <Stat
+                label="Energy"
+                value={snapshot.rover.energy.toFixed(0)}
+                sub={`of ${snapshot.rover.maxEnergy.toFixed(0)}`}
+              />
+              <Stat label="Compute" value={`${snapshot.navigation?.totalComputeMs ?? 0} ms`} />
+            </div>
+          </Card>
+
           <Card title="Navigator">
-            <p className="text-sm" aria-live="polite">
+            <p className="text-sm engineer-reason" aria-live="polite">
               {snapshot.decisionReason}
             </p>
-            <p className="text-xs text-dim">
-              Grey fog = unexplored. Yellow = current plan. Green = exit.
+            <p className="text-xs text-dim" style={{ margin: 0 }}>
+              Fog = unexplored · Yellow = plan · Green = exit
             </p>
           </Card>
 
           <Card title="Your runs" subtitle={bestRun ? `Best: ${bestRun.timeSeconds.toFixed(1)} s` : 'No finishes yet'}>
             {runs.length === 0 ? (
-              <p className="text-sm text-dim">Press Run to start your first attempt.</p>
+              <p className="text-sm text-dim" style={{ margin: 0 }}>Press Run to start your first attempt.</p>
             ) : (
               <table className="table">
-                <thead>
-                  <tr>
-                    <th scope="col">Result</th>
-                    <th scope="col">Time</th>
-                    <th scope="col">Planner</th>
-                  </tr>
-                </thead>
                 <tbody>
-                  {runs.slice(0, 10).map((run) => (
-                    <tr key={run.id} title={run.buildSummary}>
+                  {runs.slice(0, 4).map((run) => (
+                    <tr key={run.id}>
                       <td>{run.success ? '✅' : '❌'}</td>
                       <td className="mono">{run.success ? `${run.timeSeconds.toFixed(1)} s` : '—'}</td>
                       <td className="text-xs">{PLANNER_LABELS[run.planner]}</td>

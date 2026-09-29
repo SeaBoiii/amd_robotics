@@ -40,11 +40,10 @@ export default function EngineerBuild() {
   const isSearch = navigation.planner !== 'wall_follower';
 
   return (
-    <div className="stack">
-      <div className="row row--between">
+    <div className="engineer-screen">
+      <div className="engineer-screen__header">
         <div>
-          <p className="eyebrow">Step 1</p>
-          <h1 style={{ marginBottom: 0 }}>Build and configure</h1>
+          <h1>Build and configure</h1>
           <p className="text-muted">Budget is unlimited. Mass and power are not.</p>
         </div>
         <div className="row">
@@ -62,14 +61,14 @@ export default function EngineerBuild() {
         </div>
       </div>
 
-      <div className="engineer-build">
-        <div className="stack">
+      <div className="engineer-cols engineer-cols--build">
+        <Card title="Parts" subtitle="Tap to fit. One of each, except sensors.">
           {CATEGORIES.map((category) => (
-            <Card
-              key={category}
-              title={CATEGORY_LABELS[category]}
-              subtitle={category === 'sensor' ? 'Fit any combination.' : 'Pick one.'}
-            >
+            <div key={category}>
+              <h2 className="engineer-section-label">
+                {CATEGORY_LABELS[category]}
+                {category === 'sensor' ? ' · any combination' : ''}
+              </h2>
               <div className="engineer-parts">
                 {ENGINEER_PARTS.filter((part) => part.category === category).map((part) => {
                   const selected = build.partIds.includes(part.id);
@@ -79,12 +78,13 @@ export default function EngineerBuild() {
                       type="button"
                       className={cx('card', 'card--interactive', 'engineer-part', selected && 'card--selected')}
                       aria-pressed={selected}
+                      title={part.summary}
                       onClick={() => togglePart(part.id)}
                     >
                       <span className="engineer-part__name">
                         <span aria-hidden="true">{part.icon}</span> {part.name}
                       </span>
-                      <span className="text-xs text-muted">{part.summary}</span>
+                      <span className="text-xs text-muted engineer-part__summary">{part.summary}</span>
                       <span className="mono text-xs text-dim">
                         {part.massKg} kg
                         {part.powerW ? ` · ${part.powerW} W` : ''}
@@ -96,13 +96,13 @@ export default function EngineerBuild() {
                   );
                 })}
               </div>
-            </Card>
+            </div>
           ))}
-        </div>
+        </Card>
 
-        <aside className="stack">
+        <div className="engineer-col">
           <Card title="Performance">
-            <div className="grid grid--2">
+            <div className="engineer-stats">
               <Stat label="Mass" value={`${stats.massKg} kg`} />
               <Stat label="Step time" value={`${Math.round(stats.stepMs)} ms`} sub={`${stats.speed.toFixed(2)} tiles/s`} />
               <Stat label="Battery" value={stats.batteryCapacity} sub={`≈ ${Math.floor(stats.batteryCapacity / energyPerTile)} tiles`} />
@@ -127,6 +127,7 @@ export default function EngineerBuild() {
               </Callout>
             ))}
           </Card>
+        </div>
 
           <Card title="Navigation">
             <div className="stack">
@@ -204,7 +205,6 @@ export default function EngineerBuild() {
               )}
             </div>
           </Card>
-        </aside>
       </div>
     </div>
   );
