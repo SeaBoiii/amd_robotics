@@ -206,19 +206,20 @@ export default function EngineerRun() {
             >
               ↺ Reset
             </Button>
-            <div className="row" style={{ gap: 'var(--sp-1)' }} role="group" aria-label="Playback speed">
+            <div className="segmented" role="group" aria-label="Playback speed">
               {SPEEDS.map((option) => (
-                <Button
+                <button
                   key={option}
-                  size="sm"
-                  variant={speed === option ? 'primary' : 'default'}
+                  type="button"
+                  aria-pressed={speed === option}
+                  className={`segmented__option${speed === option ? ' segmented__option--active' : ''}`}
                   onClick={() => {
                     setSpeed(option);
                     runnerRef.current?.setSpeed(option);
                   }}
                 >
                   {option}×
-                </Button>
+                </button>
               ))}
             </div>
             <div className="spacer" />

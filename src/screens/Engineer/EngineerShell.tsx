@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Navigate, NavLink } from 'react-router-dom';
 import { remainingMs, useEngineerSessionStore } from '@/store/useEngineerSessionStore';
 import { formatSeconds } from '@/utils/format';
+import { useFullscreen } from './TouchControls';
 
 const LINKS = [
   { to: '/engineer/build', label: 'Build', icon: '🔧' },
@@ -46,9 +47,10 @@ function Countdown() {
 export function EngineerShell({ children }: { children: ReactNode }) {
   const engineerName = useEngineerSessionStore((state) => state.engineerName);
   const startedAt = useEngineerSessionStore((state) => state.startedAt);
+  const fullscreen = useFullscreen();
 
   return (
-    <div className="app-shell">
+    <div className="app-shell engineer-touch">
       <a href="#main" className="skip-link">
         Skip to main content
       </a>
@@ -77,6 +79,17 @@ export function EngineerShell({ children }: { children: ReactNode }) {
         <div className="row" style={{ gap: 'var(--sp-2)' }}>
           {startedAt !== null && engineerName ? <span className="pill">👷 {engineerName}</span> : null}
           <Countdown />
+          {fullscreen.supported ? (
+            <button
+              type="button"
+              className="btn engineer-fullscreen"
+              aria-pressed={fullscreen.isFullscreen}
+              onClick={fullscreen.toggle}
+            >
+              <span aria-hidden="true">{fullscreen.isFullscreen ? '✕' : '⛶'}</span>
+              {fullscreen.isFullscreen ? 'Exit full screen' : 'Full screen'}
+            </button>
+          ) : null}
         </div>
       </header>
       <main id="main" className="page">

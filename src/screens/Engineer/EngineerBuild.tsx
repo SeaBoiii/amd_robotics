@@ -13,6 +13,7 @@ import { PLANNER_LABELS } from '@/engineer/navigation/navigator';
 import type { PartCategory, PlannerId } from '@/engineer/types';
 import { useEngineerSessionStore } from '@/store/useEngineerSessionStore';
 import { cx } from '@/utils/format';
+import { Segmented, Stepper } from './TouchControls';
 
 const CATEGORIES: PartCategory[] = ['chassis', 'drive', 'battery', 'sensor', 'compute'];
 
@@ -109,19 +110,15 @@ export default function EngineerBuild() {
               <Stat label="Sensor reach" value={`${stats.maxRange} tiles`} sub={stats.seesHazards ? 'sees water' : 'blind to water'} />
               <Stat label="Planning" value={`${stats.msPerNode} ms/node`} sub={`+${stats.overheadMs} ms per plan`} />
             </div>
-            <div className="field" style={{ marginTop: 'var(--sp-3)' }}>
-              <label className="field__label" htmlFor="throttle">
-                Throttle: {build.throttle}%
-              </label>
-              <input
-                id="throttle"
-                className="range"
-                type="range"
+            <div style={{ marginTop: 'var(--sp-3)' }}>
+              <Stepper
+                label="Throttle"
+                value={build.throttle}
                 min={30}
                 max={100}
                 step={5}
-                value={build.throttle}
-                onChange={(event) => setThrottle(Number(event.target.value))}
+                format={(value) => `${value}%`}
+                onChange={setThrottle}
               />
             </div>
             {problems.map((problem) => (
@@ -133,94 +130,60 @@ export default function EngineerBuild() {
 
           <Card title="Navigation">
             <div className="stack">
-              <div className="field">
-                <label className="field__label" htmlFor="planner">
-                  Planner
-                </label>
-                <select
-                  id="planner"
-                  className="select"
-                  value={navigation.planner}
-                  onChange={(event) => setNavigation({ planner: event.target.value as PlannerId })}
-                >
-                  {(Object.keys(PLANNER_LABELS) as PlannerId[]).map((id) => (
-                    <option key={id} value={id}>
-                      {PLANNER_LABELS[id]}
-                    </option>
-                  ))}
-                </select>
-                <span className="field__hint">{PLANNER_HELP[navigation.planner]}</span>
-              </div>
+              <Segmented
+                label="Planner"
+                value={navigation.planner}
+                options={(Object.keys(PLANNER_LABELS) as PlannerId[]).map((id) => ({
+                  value: id,
+                  label: PLANNER_LABELS[id],
+                }))}
+                onChange={(planner) => setNavigation({ planner })}
+                hint={PLANNER_HELP[navigation.planner]}
+              />
 
               {navigation.planner === 'astar' ? (
-                <div className="field">
-                  <label className="field__label" htmlFor="heuristic-weight">
-                    Heuristic weight: {navigation.heuristicWeight.toFixed(2)}
-                  </label>
-                  <input
-                    id="heuristic-weight"
-                    className="range"
-                    type="range"
-                    min={1}
-                    max={3}
-                    step={0.25}
-                    value={navigation.heuristicWeight}
-                    onChange={(event) => setNavigation({ heuristicWeight: Number(event.target.value) })}
-                  />
-                  <span className="field__hint">Above 1 searches fewer nodes but may miss the best route.</span>
-                </div>
+                <Stepper
+                  label="Heuristic weight"
+                  value={navigation.heuristicWeight}
+                  min={1}
+                  max={3}
+                  step={0.25}
+                  format={(value) => value.toFixed(2)}
+                  onChange={(heuristicWeight) => setNavigation({ heuristicWeight })}
+                  hint="Above 1 searches fewer nodes but may miss the best route."
+                />
               ) : null}
 
               {isSearch ? (
                 <>
-                  <div className="field">
-                    <label className="field__label" htmlFor="unknown-cost">
-                      Unexplored cell cost: {navigation.unknownCost.toFixed(1)}
-                    </label>
-                    <input
-                      id="unknown-cost"
-                      className="range"
-                      type="range"
-                      min={1}
-                      max={5}
-                      step={0.5}
-                      value={navigation.unknownCost}
-                      onChange={(event) => setNavigation({ unknownCost: Number(event.target.value) })}
-                    />
-                    <span className="field__hint">1 = assume open. Higher prefers corridors already seen.</span>
-                  </div>
-                  <div className="field">
-                    <label className="field__label" htmlFor="hazard-penalty">
-                      Flood water cost: {navigation.hazardPenalty}
-                    </label>
-                    <input
-                      id="hazard-penalty"
-                      className="range"
-                      type="range"
-                      min={1}
-                      max={10}
-                      step={1}
-                      value={navigation.hazardPenalty}
-                      onChange={(event) => setNavigation({ hazardPenalty: Number(event.target.value) })}
-                    />
-                    <span className="field__hint">Water is passable but slippery. Only a camera can see it.</span>
-                  </div>
-                  <div className="field">
-                    <label className="field__label" htmlFor="replan">
-                      Replanning
-                    </label>
-                    <select
-                      id="replan"
-                      className="select"
-                      value={navigation.replan}
-                      onChange={(event) =>
-                        setNavigation({ replan: event.target.value as 'every_step' | 'on_change' })
-                      }
-                    >
-                      <option value="on_change">When the route is blocked</option>
-                      <option value="every_step">Every step</option>
-                    </select>
-                  </div>
+                  <Stepper
+                    label="Unexplored cell cost"
+                    value={navigation.unknownCost}
+                    min={1}
+                    max={5}
+                    step={0.5}
+                    format={(value) => value.toFixed(1)}
+                    onChange={(unknownCost) => setNavigation({ unknownCost })}
+                    hint="1 = assume open. Higher prefers corridors already seen."
+                  />
+                  <Stepper
+                    label="Flood water cost"
+                    value={navigation.hazardPenalty}
+                    min={1}
+                    max={10}
+                    step={1}
+                    onChange={(hazardPenalty) => setNavigation({ hazardPenalty })}
+                    hint="Water is passable but slippery. Only a camera can see it."
+                  />
+                  <Segmented
+                    label="Replanning"
+                    value={navigation.replan}
+                    options={[
+                      { value: 'on_change', label: 'When blocked' },
+                      { value: 'every_step', label: 'Every step' },
+                    ]}
+                    onChange={(replan) => setNavigation({ replan })}
+                  />
                   <Switch
                     checked={navigation.turnAware}
                     onChange={(value) => setNavigation({ turnAware: value })}
@@ -229,20 +192,15 @@ export default function EngineerBuild() {
                   />
                 </>
               ) : (
-                <div className="field">
-                  <label className="field__label" htmlFor="hand">
-                    Follow the wall on the
-                  </label>
-                  <select
-                    id="hand"
-                    className="select"
-                    value={navigation.hand}
-                    onChange={(event) => setNavigation({ hand: event.target.value as 'left' | 'right' })}
-                  >
-                    <option value="right">Right</option>
-                    <option value="left">Left</option>
-                  </select>
-                </div>
+                <Segmented
+                  label="Follow the wall on the"
+                  value={navigation.hand}
+                  options={[
+                    { value: 'left', label: 'Left' },
+                    { value: 'right', label: 'Right' },
+                  ]}
+                  onChange={(hand) => setNavigation({ hand })}
+                />
               )}
             </div>
           </Card>

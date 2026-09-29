@@ -793,6 +793,141 @@
   background: rgb(34 211 238 / 12%);
 }
 
+/* Touch-first: 48px+ targets, no double-tap zoom, no hover-only affordances. */
+.engineer-touch {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.engineer-touch .btn,
+.engineer-touch .topbar__link,
+.engineer-touch .switch,
+.engineer-touch .segmented__option,
+.engineer-touch .stepper__button {
+  min-height: 3rem;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.engineer-touch .btn {
+  font-size: var(--fs-md);
+  padding: 0.7em 1.3em;
+}
+
+.engineer-touch .btn--lg {
+  min-height: 3.5rem;
+  font-size: var(--fs-lg);
+}
+
+.engineer-touch .topbar__link {
+  display: inline-flex;
+  align-items: center;
+  padding-inline: var(--sp-4);
+}
+
+/* 16px+ stops iOS zooming into focused inputs. */
+.engineer-touch .input {
+  min-height: 3rem;
+  font-size: max(1rem, var(--fs-md));
+}
+
+.engineer-touch .switch {
+  padding: var(--sp-3) var(--sp-4);
+}
+
+.engineer-touch .btn:active:not(:disabled),
+.engineer-touch .segmented__option:active,
+.engineer-touch .stepper__button:active:not(:disabled),
+.engineer-touch .engineer-part:active {
+  transform: scale(0.97);
+}
+
+@media (hover: none) {
+  .engineer-touch .card--interactive:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+.engineer-touch .engineer-part {
+  min-height: 5.5rem;
+  padding: var(--sp-3) var(--sp-4);
+}
+
+.engineer-touch .engineer-part__name {
+  font-size: var(--fs-md);
+}
+
+.engineer-touch .table td,
+.engineer-touch .table th {
+  padding-block: var(--sp-3);
+}
+
+.engineer-fullscreen {
+  gap: var(--sp-2);
+}
+
+.segmented {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+  padding: var(--sp-1);
+  background: var(--c-bg-deep);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+}
+
+.segmented__option {
+  flex: 1 1 auto;
+  padding: var(--sp-2) var(--sp-3);
+  font: inherit;
+  font-weight: 700;
+  color: var(--c-text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.segmented__option--active {
+  color: #04121a;
+  background: var(--c-primary);
+  border-color: var(--c-primary-strong);
+}
+
+.stepper {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr) 3.5rem;
+  align-items: stretch;
+  gap: var(--sp-2);
+}
+
+.stepper__button {
+  font: inherit;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--c-text);
+  background: var(--c-panel-raised);
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.stepper__button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.stepper__value {
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  background: var(--c-bg-deep);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+}
+
+
 /* --- Print (certificates and notebook exports) ---------------------------- */
 @media print {
   .topbar,
