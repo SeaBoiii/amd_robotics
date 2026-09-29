@@ -39,7 +39,7 @@ const DEFAULT_EDUCATOR: EducatorSettings = {
   instantTrainingAllowed: true,
   timeLimitOverrideSeconds: 0,
   unlockAllMissions: false,
-  engineerSessionMinutes: 8,
+  engineerSessionMinutes: 4,
 };
 
 export const useSettingsStore = create<SettingsState>()(

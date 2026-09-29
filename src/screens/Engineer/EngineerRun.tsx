@@ -15,7 +15,8 @@ import { createId, formatSeconds } from '@/utils/format';
 import { TextGrid } from '@/screens/MissionSimulator/TextGrid';
 import { useSessionClock } from './EngineerShell';
 
-const SPEEDS = [1, 2, 4, 8];
+// Fixed for everyone: playback speed must not change a run's recorded time.
+const PLAYBACK_SPEED = 4;
 
 export default function EngineerRun() {
   const navigate = useNavigate();
@@ -30,7 +31,6 @@ export default function EngineerRun() {
   const { expired } = useSessionClock();
 
   const [snapshot, setSnapshot] = useState<SimulationSnapshot | null>(null);
-  const [speed, setSpeed] = useState(4);
   const [phaserFailed, setPhaserFailed] = useState(false);
   const [useTextView, setUseTextView] = useState(false);
   const [posted, setPosted] = useState<boolean | null>(null);
@@ -40,8 +40,6 @@ export default function EngineerRun() {
   const recordedRef = useRef<number | null>(null);
   const expiredRef = useRef(expired);
   expiredRef.current = expired;
-  const speedRef = useRef(speed);
-  speedRef.current = speed;
 
   const buildErrors = useMemo(
     () => checkEngineerBuild(build).filter((problem) => problem.severity === 'error'),
@@ -50,7 +48,7 @@ export default function EngineerRun() {
 
   useEffect(() => {
     const runner = new SimulationRunner(createEngineerSimulationConfig(build, navigation));
-    runner.setSpeed(speedRef.current);
+    runner.setSpeed(PLAYBACK_SPEED);
     runnerRef.current = runner;
     recordedRef.current = null;
     setPosted(null);
@@ -178,22 +176,6 @@ export default function EngineerRun() {
             >
               ↺ Reset
             </Button>
-            <div className="segmented" role="group" aria-label="Playback speed">
-              {SPEEDS.map((option) => (
-                <button
-                  key={option}
-                  type="button"
-                  aria-pressed={speed === option}
-                  className={`segmented__option${speed === option ? ' segmented__option--active' : ''}`}
-                  onClick={() => {
-                    setSpeed(option);
-                    runnerRef.current?.setSpeed(option);
-                  }}
-                >
-                  {option}×
-                </button>
-              ))}
-            </div>
             <div className="spacer" />
             <Switch checked={showTextView} onChange={setUseTextView} label="Text map" hint="Screen-reader friendly" />
           </div>

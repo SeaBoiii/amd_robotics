@@ -45,7 +45,7 @@ test('an engineer can build a rover, run the maze and land on the leaderboard', 
   await page.getByRole('button', { name: /Go to the maze/ }).tap();
 
   await expect(page).toHaveURL(/#\/engineer\/run$/);
-  await page.getByRole('button', { name: '8×' }).tap();
+  await expect(page.getByRole('group', { name: 'Playback speed' })).toBeHidden();
   await page.getByRole('button', { name: /Run$/ }).tap();
 
   await expect(page.getByText(/Exit reached in [\d.]+ s/)).toBeVisible({ timeout: 60_000 });
@@ -89,6 +89,8 @@ for (const viewport of [
   test(`every engineer screen fits one ${viewport.width}×${viewport.height} display without scrolling`, async ({
     page,
   }, testInfo) => {
+    // Walks all four screens including a full fixed-speed maze run.
+    testInfo.setTimeout(150_000);
     await page.setViewportSize(viewport);
 
     const expectNoScroll = async (screen: string) => {
@@ -132,7 +134,6 @@ for (const viewport of [
     await expectNoScroll('build');
 
     await page.getByRole('button', { name: /Go to the maze/ }).tap();
-    await page.getByRole('button', { name: '8×' }).tap();
     await page.getByRole('button', { name: /Run$/ }).tap();
     await expect(page.getByText(/Exit reached in/)).toBeVisible({ timeout: 60_000 });
     await expectNoScroll('run');

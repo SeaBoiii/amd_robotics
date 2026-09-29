@@ -35,7 +35,7 @@ export const useEngineerSessionStore = create<EngineerSessionState>()(
     (set, get) => ({
       engineerName: '',
       startedAt: null,
-      durationSec: 480,
+      durationSec: 240,
       build: createDefaultEngineerBuild(),
       navigation: DEFAULT_NAVIGATION,
       runs: [],

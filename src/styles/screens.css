@@ -842,9 +842,47 @@
   transform: scale(0.97);
 }
 
-@media (hover: none) {
-  .engineer-touch .card--interactive:hover:not(:disabled) {
+/* Touch screens keep :hover on the last-tapped element, which leaves a toggled-off
+   button looking selected. Only let hover paint when a real pointer is present. */
+@media not all and (hover: hover) and (pointer: fine) {
+  .engineer-touch .card--interactive:hover:not(:disabled),
+  .engineer-touch .engineer-part:hover:not(:disabled) {
     transform: none;
+    border-color: var(--c-border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .engineer-touch .engineer-part.card--selected:hover {
+    border-color: var(--c-primary);
+    box-shadow: var(--shadow-glow);
+  }
+
+  .engineer-touch .btn:hover:not(:disabled) {
+    background: var(--c-panel-raised);
+    border-color: var(--c-border-strong);
+  }
+
+  .engineer-touch .btn--primary:hover:not(:disabled) {
+    background: linear-gradient(180deg, var(--c-primary) 0%, var(--c-primary-strong) 100%);
+    border-color: var(--c-primary-strong);
+  }
+
+  .engineer-touch .btn--danger:hover:not(:disabled) {
+    background: transparent;
+  }
+
+  .engineer-touch .btn--ghost:hover:not(:disabled) {
+    background: transparent;
+    border-color: var(--c-border);
+  }
+
+  .engineer-touch .topbar__link:hover:not(.topbar__link--active) {
+    background: transparent;
+    color: var(--c-text-muted);
+  }
+
+  .engineer-touch .table tbody tr:hover {
+    background: transparent;
   }
 }
 
