@@ -16,8 +16,12 @@ interface EngineerSessionState {
   build: EngineerBuild;
   navigation: NavigationConfig;
   runs: EngineerRun[];
+  /** Set when the countdown ended the session; the landing screen shows and clears it. */
+  endedByTimeout: boolean;
   startSession(name: string, durationSec: number): void;
   endSession(): void;
+  expireSession(): void;
+  acknowledgeTimeout(): void;
   togglePart(partId: string): void;
   setThrottle(throttle: number): void;
   setNavigation(patch: Partial<NavigationConfig>): void;
@@ -39,6 +43,7 @@ export const useEngineerSessionStore = create<EngineerSessionState>()(
       build: createDefaultEngineerBuild(),
       navigation: DEFAULT_NAVIGATION,
       runs: [],
+      endedByTimeout: false,
 
       startSession: (name, durationSec) =>
         set({
@@ -48,9 +53,14 @@ export const useEngineerSessionStore = create<EngineerSessionState>()(
           build: createDefaultEngineerBuild(),
           navigation: DEFAULT_NAVIGATION,
           runs: [],
+          endedByTimeout: false,
         }),
 
-      endSession: () => set({ engineerName: '', startedAt: null, runs: [] }),
+      endSession: () => set({ engineerName: '', startedAt: null, runs: [], endedByTimeout: false }),
+
+      expireSession: () => set({ engineerName: '', startedAt: null, runs: [], endedByTimeout: true }),
+
+      acknowledgeTimeout: () => set({ endedByTimeout: false }),
 
       togglePart: (partId) => {
         const part = PARTS_BY_ID.get(partId);

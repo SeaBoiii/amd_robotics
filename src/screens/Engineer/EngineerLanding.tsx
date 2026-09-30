@@ -20,6 +20,8 @@ export default function EngineerLanding() {
   const endSession = useEngineerSessionStore((state) => state.endSession);
   const entries = useLeaderboardStore((state) => state.entries);
   const { active, remaining, expired } = useSessionClock();
+  const justExpired = useEngineerSessionStore((state) => state.endedByTimeout);
+  const acknowledgeTimeout = useEngineerSessionStore((state) => state.acknowledgeTimeout);
   const [name, setName] = useState(() =>
     generateEngineerName(useLeaderboardStore.getState().entries.map((entry) => entry.name)),
   );
@@ -50,7 +52,7 @@ export default function EngineerLanding() {
             <li>Planning is not free: search time on your compute module is added to the clock.</li>
             <li>Run as often as you like. Your best successful run is posted automatically.</li>
             <li>Ranking: time, then fewest collisions, then least energy.</li>
-            <li>When the timer ends, new runs no longer count.</li>
+            <li>When the timer runs out the session ends, wherever you are.</li>
           </ul>
         </Card>
 
@@ -60,15 +62,13 @@ export default function EngineerLanding() {
       </div>
 
       <div className="stack">
-      {active ? (
-        <Callout tone={expired ? 'warning' : 'info'} title={`Session in progress: ${engineerName}`}>
-          <p>{expired ? 'Time is up for this session.' : `${formatSeconds(remaining / 1000)} left.`}</p>
+      {active && !expired ? (
+        <Callout tone="info" title={`Session in progress: ${engineerName}`}>
+          <p>{formatSeconds(remaining / 1000)} left.</p>
           <div className="row">
-            {!expired ? (
-              <Button variant="primary" onClick={() => navigate('/engineer/build')}>
-                Continue
-              </Button>
-            ) : null}
+            <Button variant="primary" onClick={() => navigate('/engineer/build')}>
+              Continue
+            </Button>
             <Button onClick={endSession}>End session</Button>
           </div>
         </Callout>
@@ -79,10 +79,16 @@ export default function EngineerLanding() {
             onSubmit={(event) => {
               event.preventDefault();
               if (!trimmed) return;
+              acknowledgeTimeout();
               startSession(trimmed, minutes * 60);
               navigate('/engineer/build');
             }}
           >
+            {justExpired ? (
+              <Callout tone="warning" title="Time is up">
+                That session has ended. Any run you finished in time is on the leaderboard.
+              </Callout>
+            ) : null}
             <div className="field">
               <label className="field__label" htmlFor="engineer-name">
                 Engineer name

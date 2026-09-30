@@ -31,7 +31,15 @@ export function useSessionClock() {
 
 export function RequireEngineerSession({ children }: { children: ReactNode }) {
   const startedAt = useEngineerSessionStore((state) => state.startedAt);
-  if (startedAt === null) return <Navigate to="/engineer" replace />;
+  const expireSession = useEngineerSessionStore((state) => state.expireSession);
+  const { expired } = useSessionClock();
+
+  // When the clock runs out the session is over: no more testing, back to the front page.
+  useEffect(() => {
+    if (expired) expireSession();
+  }, [expired, expireSession]);
+
+  if (startedAt === null || expired) return <Navigate to="/engineer" replace />;
   return <>{children}</>;
 }
 

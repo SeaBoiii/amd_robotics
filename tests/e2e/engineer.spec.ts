@@ -56,6 +56,29 @@ test('an engineer can build a rover, run the maze and land on the leaderboard', 
   await expect(page.getByRole('rowheader', { name: 'Grace H' })).toBeVisible();
 });
 
+test('an expired session ends and returns to the front page', async ({ page }) => {
+  await page.goto('/#/engineer');
+  await page.getByRole('button', { name: /Start \d+-minute session/ }).tap();
+  await expect(page).toHaveURL(/#\/engineer\/build$/);
+
+  // Backdate the start so the clock is already past the end of the session.
+  await page.evaluate(() => {
+    const key = 'amd-rover:engineer-session';
+    const stored = JSON.parse(window.localStorage.getItem(key)!);
+    stored.data.startedAt = Date.now() - (stored.data.durationSec + 5) * 1000;
+    window.localStorage.setItem(key, JSON.stringify(stored));
+  });
+  await page.reload();
+
+  await expect(page).toHaveURL(/#\/engineer$/);
+  await expect(page.getByText('That session has ended')).toBeVisible();
+  await expect(page.getByRole('timer')).toBeHidden();
+
+  // The session is really over, not just hidden behind a redirect.
+  await page.goto('/#/engineer/run');
+  await expect(page).toHaveURL(/#\/engineer$/);
+});
+
 test('build and run screens require an active session', async ({ page }) => {
   await page.goto('/#/engineer/run');
   await expect(page).toHaveURL(/#\/engineer$/);

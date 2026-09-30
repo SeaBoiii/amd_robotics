@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Callout, Card, Stat, Switch } from '@/components/ui';
 import type { SimulationSnapshot } from '@/types';
-import { PhaserStage } from '@/game/phaser/PhaserStage';
 import { SimulationRunner } from '@/game/engine/runner';
 import { checkEngineerBuild, summariseBuild } from '@/engineer/catalogue';
 import { nameKey, rankEntries } from '@/engineer/leaderboard';
@@ -13,6 +12,7 @@ import { useLeaderboardStore } from '@/store/useLeaderboardStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { createId, formatSeconds } from '@/utils/format';
 import { TextGrid } from '@/screens/MissionSimulator/TextGrid';
+import { EngineerStage } from './EngineerStage';
 import { useSessionClock } from './EngineerShell';
 
 // Fixed for everyone: playback speed must not change a run's recorded time.
@@ -142,14 +142,11 @@ export default function EngineerRun() {
             {showTextView ? (
               <TextGrid snapshot={snapshot} width={ENGINEER_MAZE.map.width} height={ENGINEER_MAZE.map.height} />
             ) : (
-              <PhaserStage
+              <EngineerStage
                 mapWidth={ENGINEER_MAZE.map.width}
                 mapHeight={ENGINEER_MAZE.map.height}
                 roverColour={build.colour}
                 reducedMotion={reducedMotion}
-                showSensorOverlay
-                showDebug={false}
-                allowUpscale
                 onReady={handlePhaserReady}
                 onFailure={handlePhaserFailure}
               />
@@ -182,11 +179,6 @@ export default function EngineerRun() {
         </div>
 
         <aside className="engineer-col">
-          {expired ? (
-            <Callout tone="warning" title="Time is up">
-              New runs no longer count for the leaderboard.
-            </Callout>
-          ) : null}
           {buildErrors.length > 0 ? (
             <Callout tone="danger" title="This build cannot run">
               {buildErrors.map((problem) => problem.message).join(' ')}
